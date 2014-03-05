@@ -87,7 +87,7 @@ namespace Editor
             return stepNum;
         }
 
-        //Revert bitmap (not currently implemented)
+        //Revert a modify bitmap uInput (not currently implemented)
         void revertBmp(Steps steps)
         {
         }

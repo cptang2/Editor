@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ScaleBmp.cs" />
+    <Compile Include="sInterface.cs" />
     <Compile Include="Step.cs" />
     <Compile Include="Steps.cs" />
     <Compile Include="StepsIO.cs" />

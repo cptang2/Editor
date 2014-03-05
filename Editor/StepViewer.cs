@@ -14,7 +14,8 @@ namespace Editor
 {
     public partial class StepViewer : Form
     {
-        Steps steps;
+        //Steps steps;
+        sInterface steps;
         int sIndex = 1;
         int eIndex = 0;
         List<Control> toEnable;
@@ -69,7 +70,7 @@ namespace Editor
         {
             sIndex = 1;
             eIndex = 0;
-            steps += s;                                            // Deallocates unused space and assigns s to steps
+            steps.copy(s);                                         // Deallocates unused space and assigns s to steps
 
             toEnable.ForEach((item) => { item.Enabled = true; });  // Enable list of controls
             save.Enabled = true;
