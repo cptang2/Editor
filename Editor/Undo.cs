@@ -65,7 +65,7 @@ namespace Editor
         }
         
         // Revert one step back
-        public int revert(Steps steps)
+        public int revert(SControl steps)
         {
             int stepNum = inputs.Peek().stepNum;
 
@@ -88,16 +88,16 @@ namespace Editor
         }
 
         //Revert a modify bitmap uInput (not currently implemented)
-        void revertBmp(Steps steps)
+        void revertBmp(SControl steps)
         {
         }
 
-        void revertEvents(Steps steps)
+        void revertEvents(SControl steps)
         {
             steps.modEvent(inputs.Peek().stepNum, inputs.Peek().step.events);
         }
 
-        void revertStep(Steps steps)
+        void revertStep(SControl steps)
         {
             steps.insert(inputs.Peek().stepNum, new Step(inputs.Peek().step));
         }

@@ -16,7 +16,7 @@ namespace Editor
         void read(string file);
 
         //Copy a new steps object and deallocate the old immediately
-        void copy(Steps s);
+        void copy(SControl s);
 
         //Write steps in memory into a file
         void writeTo(string file);

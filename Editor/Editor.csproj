@@ -45,10 +45,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ScaleBmp.cs" />
-    <Compile Include="StepsMC\SInterface.cs" />
-    <Compile Include="StepsMC\SControl.cs" />
-    <Compile Include="StepsMC\Steps.cs" />
-    <Compile Include="StepsMC\StepsIO.cs" />
+    <Compile Include="StepsModel\SInterface.cs" />
+    <Compile Include="StepsModel\Step.cs" />
+    <Compile Include="StepsModel\SControl.cs" />
+    <Compile Include="StepsModel\StepsIO.cs" />
     <Compile Include="StepViewer.cs">
       <SubType>Form</SubType>
     </Compile>

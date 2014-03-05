@@ -15,7 +15,7 @@ namespace Editor
     public partial class StepViewer : Form
     {
         //Steps steps;
-        sInterface steps;
+        sInterface steps = new SControl();
         int sIndex = 1;
         int eIndex = 0;
         List<Control> toEnable;
@@ -62,11 +62,11 @@ namespace Editor
             fOpen.ShowDialog();
 
             if (File.Exists(fOpen.FileName))
-                dispTC(new Steps(fOpen.FileName));
+                dispTC(new SControl(fOpen.FileName));
         }
 
         //Display test case
-        private void dispTC(Steps s)
+        private void dispTC(SControl s)
         {
             sIndex = 1;
             eIndex = 0;
@@ -83,7 +83,6 @@ namespace Editor
             sIndex = 1;
             eIndex = 0;
             StepPic.Image.Dispose();
-            steps = null;
             toEnable.ForEach((item) => { item.Enabled = false; });
             save.Enabled = false;
 
@@ -102,12 +101,13 @@ namespace Editor
 
             denom.Text = steps.count.ToString();
             num.Text = sIndex.ToString();
-            ScaleBmp.setImg(StepPic, steps[sIndex].image); // Set current bitmap
+            
+            ScaleBmp.setImg(StepPic, steps[sIndex].image);          // Set current bitmap
             dispStep(steps[sIndex].events.ToList());                // Set events (in a step)
 
             if (StepsList.Items.Count > 0)
                 StepsList.SelectedIndex = eIndex;              // Highlight selected event
-
+            
             //Enable or disable revert button
             if (steps.canUndo())
                 undoBut.Enabled = true;

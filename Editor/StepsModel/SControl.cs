@@ -10,7 +10,7 @@ using System.IO;
 
 namespace Editor
 {
-    class Steps : sInterface
+    class SControl : sInterface
     {
         List<Step> steps = new List<Step>();
         readonly string file;
@@ -21,12 +21,14 @@ namespace Editor
             get { return steps.Count; }
         }
 
-        public Steps(string file) 
+        public SControl() { }
+
+        public SControl(string file) 
         {
             this.file = file;
             read(file);
         }
-        
+       
         #region public interface implementations
 
         public void read(string file)
@@ -34,10 +36,21 @@ namespace Editor
             reader.parse(steps, file);
         }
 
-        public void copy(Steps s)
+        public void copy(SControl s)
         {
-            if (this.steps != null)
-                (new Thread(new ThreadStart(this.free))).Start();
+            List<Step> temp = this.steps;
+
+            Action free = () =>
+                {
+                    temp.ForEach((item) =>
+                        {
+                            if (item.image != null)
+                                item.image.Dispose();
+                        });
+                };
+
+            if (temp.Count > 0)
+                (new Thread(new ThreadStart(free))).Start();
 
             this.steps = s.steps;
         }
@@ -90,15 +103,5 @@ namespace Editor
         }
 
         #endregion
-
-        //Deallocate bitmaps
-        void free()
-        {
-            steps.ForEach((item) =>
-            {
-                if (item.image != null)
-                    item.image.Dispose();
-            });
-        }
     }
 }
