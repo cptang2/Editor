@@ -48,6 +48,6 @@ namespace Editor
         bool canUndo();
 
         //Undo user input
-        void undo(out int index);
+        int undo();
     }
 }

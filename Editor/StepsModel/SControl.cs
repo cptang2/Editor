@@ -117,10 +117,9 @@ namespace Editor
             return reader.canUndo();
         }
 
-        public void undo(out int index)
+        public int undo()
         {
-            index = reader.revert(this);
-            onChange();
+            return reader.revert(this); 
         }
 
         #endregion

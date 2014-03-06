@@ -14,28 +14,17 @@ namespace Editor
 {
     public partial class StepViewer : Form
     {
+        const string undoText = "\u21BA";
+        const string redoText = "\u21BB";
+        const string moveLText = "\u2190";
+        const string moveRText = "\u2192";
+
         //Steps steps;
         sInterface steps = new SControl();
         List<Control> toEnable;
-        int eIndex = 0;
-
-        int _sIndex = 1;
-        int sIndex         //Built-in bounds checking
-        {
-            get
-            {
-                if (_sIndex <= 0)
-                    _sIndex = steps.count;
-                else if (_sIndex > steps.count)
-                    _sIndex = 1;
-
-                return _sIndex;
-            }
-            set
-            {
-                _sIndex = value;
-            }
-        }
+        Indices indices;
+        public int sIndex { get { return indices.sIndex; } }
+        public int eIndex { get { return indices.eIndex; } }
 
         public StepViewer()
         {
@@ -43,12 +32,11 @@ namespace Editor
 
             steps.sChange += refresh;
 
-            num.Text = "";
             denom.Text = "0";
-            undoBut.Text = "\u21BA";
-            redoBut.Text = "\u21BB";
-            moveLeft.Text = "\u2190";
-            moveRight.Text = "\u2192";
+            undoBut.Text = undoText;
+            redoBut.Text = redoText;
+            moveLeft.Text = moveLText;
+            moveRight.Text = moveRText;
 
             // Controls to enable when loading a valid test case
             toEnable = new List<Control>()
@@ -56,13 +44,16 @@ namespace Editor
                 StepPic, moveLeft, moveRight, StepsList, 
                 eventText, updateEV, num, remove
             };
+
+            //Keep track of view indices
+            indices = new Indices(steps, StepsList);
         }
 
         //Display click coordinates (relative to the original image) when the user click in the picture box
         private void StepPic_MouseClick(object sender, MouseEventArgs e)
         {
-            double xRatio = steps[sIndex].image.Width / (double)StepPic.Width;
-            double yRatio = steps[sIndex].image.Height / (double)StepPic.Height;
+            double xRatio = steps[indices.sIndex].image.Width / (double)StepPic.Width;
+            double yRatio = steps[indices.sIndex].image.Height / (double)StepPic.Height;
             xPos.Text = (Math.Floor(xRatio*e.X)).ToString();
             yPos.Text = (Math.Floor(yRatio*e.Y)).ToString();
         }
@@ -70,33 +61,39 @@ namespace Editor
         //Event handler for if the form is resized
         private void StepPic_SizeChanged(object sender, EventArgs e)
         {
-            ScaleBmp.setImg(StepPic, steps[sIndex].image);
+            ScaleBmp.setImg(StepPic, steps[indices.sIndex].image);
         }
 
         //Get csv file path from user
         private void Open_Click(object sender, EventArgs e)
         {
-            OpenFileDialog fOpen = new OpenFileDialog();
-            fOpen.Filter = "*.csv|*.csv";
-            fOpen.ShowDialog();
-
-            if (fOpen.FileName.Length == 0)
+            string f;
+            if ((f = GetFiles.GetTC()) == null)
                 return;
 
-            string imDir = Path.Combine(Path.GetDirectoryName(fOpen.FileName), 
-                                        Path.GetFileNameWithoutExtension(fOpen.FileName));
+            string imDir = Path.Combine(Path.GetDirectoryName(f), 
+                                        Path.GetFileNameWithoutExtension(f));
 
-            if (File.Exists(fOpen.FileName) && Directory.Exists(imDir))
-                dispTC(new SControl(fOpen.FileName));
+            if (File.Exists(f) && Directory.Exists(imDir))
+                dispTC(new SControl(f));
             else
                 MessageBox.Show("Associated image directory not found");
+        }
+
+        //Save new csv instructions file
+        private void save_Click(object sender, EventArgs e)
+        {
+            string f;
+            if ((f = GetFiles.saveTC()) == null)
+                return;
+
+            steps.writeTo(f);
         }
 
         //Display test case
         private void dispTC(SControl s)
         {
-            sIndex = 1;
-            eIndex = 0;
+            indices.sIndex = 1;
             toEnable.ForEach((item) => { item.Enabled = true; });  // Enable list of controls
             steps.copy(s);                                         // Deallocates unused space and assigns s to steps
 
@@ -106,8 +103,7 @@ namespace Editor
         //Disable controls
         private void remTC()
         {
-            sIndex = 1;
-            eIndex = 0;
+            indices.sIndex = 1;
             StepPic.Image.Dispose();
             toEnable.ForEach((item) => { item.Enabled = false; });
             save.Enabled = false;
@@ -126,12 +122,12 @@ namespace Editor
             }
 
             denom.Text = steps.count.ToString();
-            num.Text = sIndex.ToString();
+            num.Text = indices.sIndex.ToString();
             
-            ScaleBmp.setImg(StepPic, steps[sIndex].image);          // Set current bitmap
-            dispStep(steps[sIndex].events.ToList());                // Set events (in a step)
+            ScaleBmp.setImg(StepPic, steps[indices.sIndex].image);          // Set current bitmap
+            dispStep(steps[indices.sIndex].events.ToList());                // Set events (in a step)
 
-            StepsList.SelectedIndex = eIndex;              // Highlight selected event
+            StepsList.SelectedIndex = indices.eIndex;              // Highlight selected event
             
             //Enable or disable revert button
             if (steps.canUndo())
@@ -152,80 +148,69 @@ namespace Editor
         //Move to next step
         private void moveRight_Click(object sender, EventArgs e)
         {
-            sIndex++;
-
+            indices.sIndex++;
             refresh();
         }
 
         //Move to previous step
         private void moveLeft_Click(object sender, EventArgs e)
         {
-            sIndex--;
-
+            indices.sIndex--;
             refresh();
         }
 
         //Change picture by changing the index via a textbox
         private void num_KeyPress(object sender, KeyPressEventArgs e)
         {
-            uint key = 5;
-            
+            uint key;
+
             //Intercept all but integer input:
             if (!uint.TryParse(e.KeyChar.ToString(), out key))
                 e.Handled = true;
 
             if (num.Text.Length == 0)
                 return;
-
-            //Allow enter and delete keys:
-            switch ((int)e.KeyChar)
+            else
             {
-                case (8):
-                    e.Handled = false;
-                    return;
-                case (13):
-                    sIndex = Math.Max(Math.Min(int.Parse(num.Text), steps.count), 1);
-                    refresh();
-                    return;
+                //Allow enter and delete keys:
+                switch ((int)e.KeyChar)
+                {
+                    case (8):
+                        e.Handled = false;
+                        return;
+                    case (13):
+                        indices.sIndex = Math.Max(Math.Min(int.Parse(num.Text), steps.count), 1);
+                        refresh();
+                        return;
+                }
             }
         }
 
         //Select an event within a step
         private void StepsList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            eIndex = StepsList.SelectedIndex;
-            eventText.Text = StepsList.Items[eIndex].ToString();
+            indices.eIndex = StepsList.SelectedIndex;
+            eventText.Text = StepsList.Items[indices.eIndex].ToString();
         }
 
         //Update step with modified text
         private void updateEV_Click(object sender, EventArgs e)
         {
             if (eventText.Text.Length > 0)
-                steps.modEvent(sIndex, eIndex, eventText.Text);
+                steps.modEvent(indices.sIndex, indices.eIndex, eventText.Text);
         }
 
-        //Save new csv instructions file
-        private void save_Click(object sender, EventArgs e)
-        {
-            SaveFileDialog fOpen = new SaveFileDialog();
-            fOpen.Filter = "*.csv|*.csv";
-            fOpen.ShowDialog();
-
-            if (fOpen.FileName.Length == 0)
-                return;
-
-            steps.writeTo(fOpen.FileName);
-        }
-
+        //Remove a step
         private void remove_Click(object sender, EventArgs e)
         {
-            steps.remStep(sIndex);
+            steps.remStep(indices.sIndex);
         }
 
         // Undo user input
         private void undoBut_Click(object sender, EventArgs e)
         {
-            steps.undo(out _sIndex);
+            indices.sIndex = steps.undo();
+            refresh();
         }
     }
 }
