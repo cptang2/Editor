@@ -16,13 +16,32 @@ namespace Editor
     {
         //Steps steps;
         sInterface steps = new SControl();
-        int sIndex = 1;
-        int eIndex = 0;
         List<Control> toEnable;
+        int eIndex = 0;
+
+        int _sIndex = 1;
+        int sIndex         //Built-in bounds checking
+        {
+            get
+            {
+                if (_sIndex <= 0)
+                    _sIndex = steps.count;
+                else if (_sIndex > steps.count)
+                    _sIndex = 1;
+
+                return _sIndex;
+            }
+            set
+            {
+                _sIndex = value;
+            }
+        }
 
         public StepViewer()
         {
             InitializeComponent();
+
+            steps.sChange += refresh;
 
             num.Text = "";
             denom.Text = "0";
@@ -61,8 +80,16 @@ namespace Editor
             fOpen.Filter = "*.csv|*.csv";
             fOpen.ShowDialog();
 
-            if (File.Exists(fOpen.FileName))
+            if (fOpen.FileName.Length == 0)
+                return;
+
+            string imDir = Path.Combine(Path.GetDirectoryName(fOpen.FileName), 
+                                        Path.GetFileNameWithoutExtension(fOpen.FileName));
+
+            if (File.Exists(fOpen.FileName) && Directory.Exists(imDir))
                 dispTC(new SControl(fOpen.FileName));
+            else
+                MessageBox.Show("Associated image directory not found");
         }
 
         //Display test case
@@ -70,11 +97,10 @@ namespace Editor
         {
             sIndex = 1;
             eIndex = 0;
+            toEnable.ForEach((item) => { item.Enabled = true; });  // Enable list of controls
             steps.copy(s);                                         // Deallocates unused space and assigns s to steps
 
-            toEnable.ForEach((item) => { item.Enabled = true; });  // Enable list of controls
             save.Enabled = true;
-            refresh();
         }
 
         //Disable controls
@@ -105,8 +131,7 @@ namespace Editor
             ScaleBmp.setImg(StepPic, steps[sIndex].image);          // Set current bitmap
             dispStep(steps[sIndex].events.ToList());                // Set events (in a step)
 
-            if (StepsList.Items.Count > 0)
-                StepsList.SelectedIndex = eIndex;              // Highlight selected event
+            StepsList.SelectedIndex = eIndex;              // Highlight selected event
             
             //Enable or disable revert button
             if (steps.canUndo())
@@ -127,10 +152,7 @@ namespace Editor
         //Move to next step
         private void moveRight_Click(object sender, EventArgs e)
         {
-            if (sIndex < steps.count)
-                sIndex++;
-            else
-                sIndex = 1;
+            sIndex++;
 
             refresh();
         }
@@ -138,10 +160,7 @@ namespace Editor
         //Move to previous step
         private void moveLeft_Click(object sender, EventArgs e)
         {
-            if (sIndex > 1)
-                sIndex--;
-            else
-                sIndex = steps.count;
+            sIndex--;
 
             refresh();
         }
@@ -182,10 +201,7 @@ namespace Editor
         private void updateEV_Click(object sender, EventArgs e)
         {
             if (eventText.Text.Length > 0)
-            {
                 steps.modEvent(sIndex, eIndex, eventText.Text);
-                refresh();
-            }
         }
 
         //Save new csv instructions file
@@ -204,19 +220,12 @@ namespace Editor
         private void remove_Click(object sender, EventArgs e)
         {
             steps.remStep(sIndex);
-            sIndex--;
-
-            if (sIndex == 0)
-                sIndex = steps.count;
-
-            refresh();
         }
 
         // Undo user input
         private void undoBut_Click(object sender, EventArgs e)
         {
-            sIndex = steps.undo();
-            refresh();
+            steps.undo(out _sIndex);
         }
     }
 }

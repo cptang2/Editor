@@ -5,6 +5,7 @@ using System.Text;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 using System.IO;
 
 
@@ -12,6 +13,7 @@ namespace Editor
 {
     class SControl : sInterface
     {
+        public event stepsChange sChange;
         List<Step> steps = new List<Step>();
         readonly string file;
         StepsIO reader = new StepsIO();
@@ -34,6 +36,7 @@ namespace Editor
         public void read(string file)
         {
             reader.parse(steps, file);
+            onChange();
         }
 
         public void copy(SControl s)
@@ -46,6 +49,8 @@ namespace Editor
                         {
                             if (item.image != null)
                                 item.image.Dispose();
+
+                            item.events.Clear();
                         });
                 };
 
@@ -53,6 +58,13 @@ namespace Editor
                 (new Thread(new ThreadStart(free))).Start();
 
             this.steps = s.steps;
+            onChange();
+        }
+
+        public void onChange()
+        {
+            if (sChange != null)
+                sChange();
         }
 
         public Step this[int i]
@@ -72,34 +84,43 @@ namespace Editor
         {
             reader.uAdd(new Step(steps[sIndex - 1].events), sIndex, Undo.modified.events);
             steps[sIndex - 1].events[eIndex] = ev;
+
+            onChange();
         }
 
         public void remStep(int sIndex)
         {
             reader.uAdd(steps[sIndex - 1], sIndex, Undo.modified.both);
             steps.RemoveAt(sIndex - 1);
+            onChange();
         }
 
         public void insert(int sIndex, Step s)
         {
             steps.Insert(sIndex - 1, s);
+            onChange();
         }
 
         public void modEvent(int sIndex, List<string> ev)
         {
             steps[sIndex - 1].events = ev;
+            onChange();
         }
 
-        public void addBitmap(Bitmap bmp) { }
+        public void addBitmap(Bitmap bmp) 
+        {
+            onChange();
+        }
 
         public bool canUndo()
         {
             return reader.canUndo();
         }
 
-        public int undo()
+        public void undo(out int index)
         {
-            return reader.revert(this);
+            index = reader.revert(this);
+            onChange();
         }
 
         #endregion

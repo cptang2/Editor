@@ -7,8 +7,13 @@ using System.Drawing;
 
 namespace Editor
 {
+    public delegate void stepsChange();
+
     interface sInterface
     {
+        //Event for if steps are modified
+        event stepsChange sChange;
+
         //Get steps count
         int count { get; }
 
@@ -17,6 +22,9 @@ namespace Editor
 
         //Copy a new steps object and deallocate the old immediately
         void copy(SControl s);
+
+        //Handle if a step changes
+        void onChange();
 
         //Write steps in memory into a file
         void writeTo(string file);
@@ -40,6 +48,6 @@ namespace Editor
         bool canUndo();
 
         //Undo user input
-        int undo();
+        void undo(out int index);
     }
 }

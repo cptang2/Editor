@@ -36,6 +36,8 @@ namespace Editor
         {
             if (this.image != null)
                 this.image.Dispose();
+
+            events.Clear();
         }
     }
 }

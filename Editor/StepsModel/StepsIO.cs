@@ -22,12 +22,6 @@ namespace Editor
             string[] lns = File.ReadAllLines(file);
             string imDir = Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file));
 
-            if (!Directory.Exists(imDir))
-            {
-                MessageBox.Show("Associated image directory not found");
-                return;
-            }
-
             //Get events from the file
             foreach (string ln in lns)
                 parseLn(s, ln, imDir);
