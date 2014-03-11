@@ -124,10 +124,10 @@ namespace Editor
             denom.Text = steps.count.ToString();
             num.Text = indices.sIndex.ToString();
             
-            ScaleBmp.setImg(StepPic, steps[indices.sIndex].image);          // Set current bitmap
-            dispStep(steps[indices.sIndex].events.ToList());                // Set events (in a step)
+            ScaleBmp.setImg(StepPic, steps[indices.sIndex].image);      // Set current bitmap
+            dispStep(steps[indices.sIndex].events.ToList());            // Set events (in a step)
 
-            StepsList.SelectedIndex = indices.eIndex;              // Highlight selected event
+            StepsList.SelectedIndex = indices.eIndex;                   // Highlight selected event
             
             //Enable or disable revert button
             if (steps.canUndo())

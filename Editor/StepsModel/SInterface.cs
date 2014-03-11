@@ -11,43 +11,79 @@ namespace Editor
 
     interface sInterface
     {
-        //Event for if steps are modified
+        /// <summary>
+        /// Event for if steps are modified
+        /// </summary>
         event stepsChange sChange;
 
-        //Get steps count
+        /// <summary>
+        /// Get steps count
+        /// </summary>
         int count { get; }
-
-        //Load steps from a file into memory
+        
+        /// <summary>
+        /// Load steps from a file into memory
+        /// </summary>
+        /// <param name="file">Full file path with extension</param>
         void read(string file);
 
-        //Copy a new steps object and deallocate the old immediately
+        /// <summary>
+        /// Copy a new steps object and deallocate the old immediately
+        /// </summary>
+        /// <param name="s"></param>
         void copy(SControl s);
 
-        //Handle if a step changes
+        /// <summary>
+        /// Handle if a step changes
+        /// </summary>
         void onChange();
 
-        //Write steps in memory into a file
+        /// <summary>
+        /// Write steps in memory into a file
+        /// </summary>
+        /// <param name="file">Full file path with extension</param>
         void writeTo(string file);
 
-        //Modify an event
+        /// <summary>
+        /// Modify an event
+        /// </summary>
+        /// <param name="sIndex">Steps index</param>
+        /// <param name="eIndex">Events index</param>
+        /// <param name="ev">New event</param>
         void modEvent(int sIndex, int eIndex, string ev);
 
-        //Remove a step
+        /// <summary>
+        /// Remove a Step
+        /// </summary>
+        /// <param name="sIndex">Steps index</param>
         void remStep(int sIndex);
 
-        //Get a copy of a step
+        /// <summary>
+        /// Get a copy of a Step
+        /// </summary>
         Step this[int i] { get; }
-
-        //Insert a step
+        
+        /// <summary>
+        /// Insert a Step
+        /// </summary>
+        /// <param name="sIndex">Steps index</param>
+        /// <param name="s">Steo to instert</param>
         void insert(int sIndex, Step s);
 
-        //Replace a bitmap (not currently implemented)
+        /// <summary>
+        /// Replace a bitmap (not currently implemented)
+        /// </summary>
         void addBitmap(Bitmap bmp);
 
-        //Check if user input can be undone
+        /// <summary>
+        /// Check if user input can be undone
+        /// </summary>
         bool canUndo();
 
-        //Undo user input
+        /// <summary>
+        /// Undo user input
+        /// </summary>
+        /// <returns>Index to step that was undone</returns>
         int undo();
     }
 }

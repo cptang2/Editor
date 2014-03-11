@@ -44,23 +44,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="View\GetFiles.cs" />
-    <Compile Include="View\Indices.cs" />
-    <Compile Include="View\ScaleBmp.cs" />
+    <Compile Include="EditorView\GetFiles.cs" />
+    <Compile Include="EditorView\Indices.cs" />
+    <Compile Include="EditorView\ScaleBmp.cs" />
     <Compile Include="StepsModel\SInterface.cs" />
     <Compile Include="StepsModel\Step.cs" />
     <Compile Include="StepsModel\SControl.cs" />
     <Compile Include="StepsModel\StepsIO.cs" />
-    <Compile Include="View\StepViewer.cs">
+    <Compile Include="EditorView\StepViewer.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="View\StepViewer.Designer.cs">
+    <Compile Include="EditorView\StepViewer.Designer.cs">
       <DependentUpon>StepViewer.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StepsModel\Undo.cs" />
-    <EmbeddedResource Include="View\StepViewer.resx">
+    <EmbeddedResource Include="EditorView\StepViewer.resx">
       <DependentUpon>StepViewer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

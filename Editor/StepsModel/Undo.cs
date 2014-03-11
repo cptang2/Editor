@@ -21,7 +21,7 @@ namespace Editor
         {
             public modified type;              //Specify what was modified
 
-            readonly public Step step; // Step that was changed
+            readonly public Step step;         // Step that was changed
             readonly public int stepNum;       // Step number of the step that was changed
 
             public uInput(Step step, int stepNum, modified type)
